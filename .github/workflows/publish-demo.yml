@@ -35,7 +35,11 @@ jobs:
         if: github.ref == 'refs/heads/master'
 
         steps:
-            - name: Deploy to GitHub Pages
-              uses: actions/deploy-pages@v1
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
               with:
-                token: ${{ secrets.GITHUB_TOKEN }}
+                # Upload entire repository
+                path: './dist'
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
