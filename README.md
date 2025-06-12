@@ -1,6 +1,6 @@
 # Osiris
 
-A lightweight React-like UI framework built with TypeScript. Create modern web applications with minimal overhead using familiar hooks and virtual DOM patterns.
+A lightweight UI framework built with TypeScript. Create modern web applications with minimal overhead using familiar hooks and virtual DOM patterns.
 
 ## Features
 

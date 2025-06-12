@@ -14,7 +14,7 @@ const app = () => {
         // Header
         div({ class: 'header' },
             h1({ class: 'title' }, '📝 Osiris Demo'),
-            p({ class: 'subtitle' }, 'A lightweight React-like UI framework with TypeScript')
+            p({ class: 'subtitle' }, 'A lightweight UI framework built with TypeScript. Create modern web applications with minimal overhead using familiar hooks and virtual DOM patterns.')
         ),
 
         // Navigation
