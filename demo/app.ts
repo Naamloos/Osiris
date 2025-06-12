@@ -11,7 +11,7 @@ const app = () => {
             id: 'osiris-title'
         }, 'Osiris'),
 
-        p('A lightweight implementation of a UI framework with hooks.'),
+        p('💖 A lightweight implementation of a UI framework with hooks.'),
         p(`${clickCount} clicks so far.`),
 
         button({
