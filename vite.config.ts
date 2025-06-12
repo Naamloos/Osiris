@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   root: './demo', // Set the root directory to demo
+  base: '/osiris/',
   build: {
     rollupOptions: {
       external: [],
