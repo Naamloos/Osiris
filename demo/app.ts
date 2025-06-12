@@ -1,4 +1,5 @@
 import { useState, div, h1, button, p } from '../src';
+import clickButton from './clickButton';
 
 const app = () => {
     // Create a reactive state for button click count
@@ -14,10 +15,8 @@ const app = () => {
         p('💖 A lightweight implementation of a UI framework with hooks.'),
         p(`${clickCount} clicks so far.`),
 
-        button({
-            class: 'button', 
-            onClick: () => setClickCount(clickCount + 1)
-        }, `Clicks: ${clickCount}`)
+        // nested reactive component
+        clickButton(() => setClickCount(clickCount + 1), `Clicks: ${clickCount}`),
     );
 };
 

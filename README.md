@@ -1,97 +1,305 @@
 # Osiris
 
-Reactive Vanilla Typescript UI framework for building modern user interfaces with a minimal footprint.
+A lightweight React-like UI framework built with TypeScript. Create modern web applications with minimal overhead using familiar hooks and virtual DOM patterns.
 
 ## Features
 
-- **Virtual DOM** - Efficient updates with a lightweight diffing algorithm
-- **Functional Components** - Build UIs with reusable function components
-- **Hooks API** - State management using hooks like `useState`
-- **Style Objects** - Clean component styling with JavaScript objects
-- **Minimal API Surface** - Simple and intuitive API design
+- **Virtual DOM** - Efficient diffing with keyed reconciliation and batched updates
+- **React-like Hooks** - `useState` and `useEffect` for familiar state management
+- **Type-Safe Elements** - Factory functions for all HTML elements with full TypeScript support
+- **Zero Dependencies** - Pure TypeScript implementation, no external runtime dependencies
+- **Performance Optimized** - Automatic batching, component caching, and `requestAnimationFrame` updates
 
-## Basic Usage
+## Quick Start
+
+```bash
+git clone https://github.com/yourusername/osiris.git
+cd osiris
+npm install
+npm run dev
+```
 
 ```typescript
-import { useState, div, h1, button } from './osiris';
+import { renderComponent, useState, div, h1, button } from 'osiris';
 
-const app = () => {
-  // Create a reactive state for button click count
-  const [clickCount, setClickCount] = useState(0);
+const App = () => {
+  const [count, setCount] = useState(0);
   
-  return div({style: {fontFamily: 'Arial, sans-serif'}},
-    h1('Osiris Framework'),
+  return div(
+    h1('My Osiris App'),
     button({
-      onClick: () => setClickCount(clickCount + 1)
-    }, `Clicks: ${clickCount}`)
+      onClick: () => setCount(count + 1)
+    }, `Count: ${count}`)
   );
 };
 
-export default app;
+renderComponent(App, document.getElementById('app'));
 ```
 
 ## Core API
 
-### Elements
-
-- `div`, `h1`, `p`, `ul`, `li`, `button` - Create DOM elements with props and children
-- Other HTML elements available through similar functions
-
-### Hooks
-
-- `useState(initialState)` - Adds reactive state to functional components
-- More hooks coming soon!
-
-## Example Components
-
-### Counter Component
+### State Management
 
 ```typescript
-const Counter = () => {
-  const [count, setCount] = useState(0);
+// useState - reactive state with automatic re-rendering
+const [value, setValue] = useState(initialValue);
+
+// useEffect - side effects with optional cleanup
+useEffect(() => {
+  const timer = setInterval(() => console.log('tick'), 1000);
+  return () => clearInterval(timer); // cleanup
+}, []);
+```
+
+### Rendering
+
+```typescript
+// renderComponent - mount a component to the DOM
+renderComponent(ComponentFunction, containerElement);
+
+// $ - create virtual DOM nodes (rarely used directly)
+const vnode = $('div', { class: 'container' }, 'content');
+```
+
+## Elements & Props
+
+### HTML Elements
+All standard HTML elements are available as factory functions:
+
+```typescript
+import { div, span, p, h1, h2, a, button, input, form, ul, li } from 'osiris';
+
+const Layout = () => div(
+  h1('Title'),
+  p('Description'),
+  button({ onClick: () => alert('clicked') }, 'Click me')
+);
+```
+
+### Props & Attributes
+Standard HTML attributes and event handlers are supported:
+
+```typescript
+const Interactive = () => div(
+  {
+    id: 'container',
+    class: 'active highlighted',
+    'data-testid': 'main-container',
+    style: {
+      backgroundColor: '#f0f0f0',
+      padding: '20px',
+      borderRadius: '8px'
+    }
+  },
+  input({
+    type: 'text',
+    placeholder: 'Enter text...',
+    onInput: (e) => console.log(e.target.value),
+    onFocus: () => console.log('focused'),
+    onKeyDown: (e) => e.key === 'Enter' && handleSubmit()
+  })
+);
+```
+
+## Patterns & Examples
+
+### Component Composition
+```typescript
+const Card = (title: string, content: string) => div(
+  { class: 'card' },
+  h3(title),
+  p(content)
+);
+
+const Dashboard = () => div(
+  h1('Dashboard'),
+  Card('Users', '1,234 active'),
+  Card('Revenue', '$45,678')
+);
+```
+
+### Custom Hooks
+```typescript
+const useCounter = (initial = 0) => {
+  const [count, setCount] = useState(initial);
+  return {
+    count,
+    increment: () => setCount(count + 1),
+    decrement: () => setCount(count - 1),
+    reset: () => setCount(initial)
+  };
+};
+
+const CounterApp = () => {
+  const { count, increment, decrement, reset } = useCounter(10);
   
   return div(
-    h1(`Count: ${count}`),
-    button({
-      onClick: () => setCount(count + 1)
-    }, 'Increment'),
-    button({
-      onClick: () => setCount(count - 1)
-    }, 'Decrement')
+    h2(`Count: ${count}`),
+    button({ onClick: increment }, '+'),
+    button({ onClick: decrement }, '-'),
+    button({ onClick: reset }, 'Reset')
   );
 };
 ```
 
-## Styling Components
-
-Osiris components can be styled using JavaScript objects:
-
+### Dynamic Lists
 ```typescript
-const styles = {
-  container: {
-    fontFamily: 'Arial, sans-serif',
-    maxWidth: '800px',
-    margin: '0 auto',
-    padding: '20px'
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    border: 'none',
-    padding: '10px 15px'
-  }
-};
-
-const StyledComponent = () => {
-  return div({style: styles.container},
-    button({style: styles.button}, 'Styled Button')
+const TodoApp = () => {
+  const [todos, setTodos] = useState([
+    { id: 1, text: 'Learn Osiris', done: false }
+  ]);
+  
+  const toggle = (id: number) => setTodos(todos.map(todo => 
+    todo.id === id ? { ...todo, done: !todo.done } : todo
+  ));
+  
+  return div(
+    h2('Todos'),
+    ul(
+      ...todos.map(todo => li(
+        { 
+          key: todo.id,
+          style: { textDecoration: todo.done ? 'line-through' : 'none' }
+        },
+        span(todo.text),
+        button({ onClick: () => toggle(todo.id) }, 
+          todo.done ? 'Undo' : 'Done'
+        )
+      ))
+    )
   );
 };
+```
+
+### Form Handling
+```typescript
+const ContactForm = () => {
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  
+  const updateField = (field: string) => (e: Event) => 
+    setForm({ ...form, [field]: (e.target as HTMLInputElement).value });
+  
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    console.log('Submitted:', form);
+  };
+  
+  return form({ onSubmit: handleSubmit },
+    input({ 
+      placeholder: 'Name', 
+      value: form.name, 
+      onInput: updateField('name') 
+    }),
+    input({ 
+      type: 'email', 
+      placeholder: 'Email', 
+      value: form.email, 
+      onInput: updateField('email') 
+    }),
+    textarea({ 
+      placeholder: 'Message', 
+      value: form.message, 
+      onInput: updateField('message') 
+    }),
+    button({ type: 'submit' }, 'Send')
+  );
+};
+```
+
+## Architecture
+
+### Virtual DOM
+- **Diffing**: Compares virtual trees to minimize DOM operations
+- **Keyed Elements**: Use `key` prop for efficient list updates
+- **Batching**: Multiple state updates grouped into single render
+
+### State System
+- **Subscription**: Components auto-subscribe to state they use
+- **Batching**: Updates batched with microtasks and `requestAnimationFrame`
+- **Caching**: Components cached to prevent unnecessary re-renders
+
+### Performance
+```typescript
+// ✅ Good - stable references
+const styles = { padding: '10px', color: 'blue' };
+const MyComponent = () => div({ style: styles }, 'Content');
+
+// ❌ Avoid - new objects every render
+const MyComponent = () => div({ 
+  style: { padding: '10px', color: 'blue' } 
+}, 'Content');
+
+// ✅ Good - use keys for lists
+const List = () => ul(...items.map(item => 
+  li({ key: item.id }, item.name)
+));
+```
+
+## TypeScript
+
+Full type safety out of the box:
+
+```typescript
+// Type-safe state
+const [user, setUser] = useState<User | null>(null);
+const [count, setCount] = useState<number>(0);
+
+// Type-safe components
+interface ButtonProps {
+  label: string;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary';
+}
+
+const Button = ({ label, onClick, variant = 'primary' }: ButtonProps) =>
+  button({ 
+    onClick, 
+    class: `btn btn-${variant}` 
+  }, label);
+```
+
+## Development
+
+```bash
+npm run dev     # Development server
+npm run build   # Production build
+npm run test    # Run tests
+npm run preview # Preview build
+```
+
+### Project Structure
+```
+src/
+├── index.ts           # Main exports
+├── core/
+│   ├── dom.ts         # Virtual DOM & diffing
+│   ├── elements.ts    # HTML element factories
+│   ├── render.ts      # Component rendering
+│   ├── state.ts       # State management
+│   └── styles.ts      # Style utilities
+└── types/
+    └── Props.d.ts     # TypeScript definitions
 ```
 
 ## Browser Support
 
-Osiris works in all modern browsers (Chrome, Firefox, Safari, Edge)
+Modern browsers with ES2015+, `requestAnimationFrame`, `Promise`, and `WeakMap`:
+- Chrome 61+, Firefox 60+, Safari 12+, Edge 79+
+
+## Troubleshooting
+
+**State not updating?** Check you're using the setter from `useState`, not mutating directly.
+
+**Performance issues?** Use `key` props for lists, avoid creating objects in render functions.
+
+**TypeScript errors?** Use `class` not `className`, ensure event handlers match expected signatures.
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature-name`
+3. Add tests for new functionality
+4. Submit pull request
 
 ## License
 
