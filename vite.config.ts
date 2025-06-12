@@ -3,10 +3,13 @@ import * as babel from '@babel/core';
 import path from 'path';
 
 export default defineConfig({
+  root: './demo', // Set the root directory to demo
   build: {
     rollupOptions: {
       external: [],
-    }
+    },
+    outDir: '../dist',
+    emptyOutDir: true,
   },
   plugins: [
     { 
