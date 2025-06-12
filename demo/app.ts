@@ -1,22 +1,63 @@
-import { useState, div, h1, button, p } from '../src';
-import clickButton from './clickButton';
+import { useState, useEffect, div, h1, h2, h3, p, button, pre, code, section, nav, a, input, ul, li, span, strong } from '../src';
+import demos from './demos';
 
 const app = () => {
-    // Create a reactive state for button click count
-    const [clickCount, setClickCount] = useState(0);
-    
-    return div({ class: 'container' },
-        h1({ 
-            class: 'heading', 
-            style: { animation: 'tilt 3s ease-in-out infinite' },
-            id: 'osiris-title'
-        }, 'Osiris'),
+    const [activeDemo, setActiveDemo] = useState('counter');
+    const [demoCode, setDemoCode] = useState(demos['counter'].code);
 
-        p('💖 A lightweight implementation of a UI framework with hooks.'),
-        p(`${clickCount} clicks so far.`),
+    const switchDemo = (demo: string) => {
+        setActiveDemo(demo);
+        setDemoCode(demos[demo as keyof typeof demos].code);
+    }
 
-        // nested reactive component
-        clickButton(() => setClickCount(clickCount + 1), `Clicks: ${clickCount}`),
+    return div({ class: 'app' },
+        // Header
+        div({ class: 'header' },
+            h1({ class: 'title' }, '🔱 Osiris Demo'),
+            p({ class: 'subtitle' }, 'A lightweight React-like UI framework with TypeScript')
+        ),
+
+        // Navigation
+        nav({ class: 'nav' },
+            ...Object.keys(demos).map(key =>
+                button({
+                    class: `nav-button ${activeDemo === key ? 'active' : ''}`,
+                    onClick: () => switchDemo(key)
+                }, demos[key as keyof typeof demos].title)
+            )
+        ),
+
+        // Main content
+        div({ class: 'main' },
+            section({ class: 'demo-section' },
+                h2({ class: 'demo-title' }, demos[activeDemo as keyof typeof demos].title),
+                p({ class: 'demo-description' }, demos[activeDemo as keyof typeof demos].description),
+
+                // Live demo
+                div({ class: 'demo-container' },
+                    h3('Live Demo:'),
+                    div({ class: 'demo-preview' },
+                        demos[activeDemo as keyof typeof demos].component()
+                    )
+                ),
+
+                // Code example
+                div({ class: 'code-container' },
+                    h3('Code:'),
+                    pre({ class: 'code-block' },
+                        code({
+                            class: 'language-typescript',
+                        }, demoCode)
+                    )
+                )
+            )
+        ),
+
+        // Footer
+        div({ class: 'footer' },
+            p('Built with ❤️ using Osiris Framework'),
+            p('Syntax highlighting powered by highlight.js')
+        )
     );
 };
 

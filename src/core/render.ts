@@ -1,5 +1,6 @@
 import { resetState, setCurrentEffect } from './state';
 import { render, VNode } from './dom';
+import { Props } from '../types/Props';
 
 // Cache for rendered components to avoid unnecessary re-renders
 const componentCache = new WeakMap<HTMLElement, { 
@@ -85,11 +86,34 @@ function areVNodesShallowEqual(a: VNode, b: VNode): boolean {
     if (a.type !== b.type) return false;
     if (a.children.length !== b.children.length) return false;
     
+    // For arrays or objects in state, always re-render to be safe
+    if (a.children.length > 1 || b.children.length > 1) return false;
+    
     // For simple cases with just text content, do a quick comparison
     if (a.children.length === 1 && typeof a.children[0] === 'string' && 
         b.children.length === 1 && typeof b.children[0] === 'string') {
-        return a.children[0] === b.children[0];
+        return a.children[0] === b.children[0] && shallowEqual(a.props, b.props);
     }
     
     return false;
+}
+
+function shallowEqual(props: Props, props1: Props): boolean {
+    if (props === props1) return true;
+    if (typeof props !== 'object' || props === null || typeof props1 !== 'object' || props1 === null) return false;
+
+    const keysA = Object.keys(props);
+    const keysB = Object.keys(props1);
+
+    if (keysA.length !== keysB.length) {
+        return false;
+    }
+
+    for (let i = 0; i < keysA.length; i++) {
+        if (!props1.hasOwnProperty(keysA[i]) || props[keysA[i]] !== props1[keysA[i]]) {
+            return false;
+        }
+    }
+
+    return true;
 }

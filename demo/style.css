@@ -1,35 +1,323 @@
-* {
+/* Import Nunito font */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
+/* Modern Global Styles */
+:root {
+    --primary-color: #6f42c1; /* A deeper, more vibrant purple */
+    --secondary-color: #495057; /* Dark gray, for contrast */
+    --accent-color: #e9ecef; /* A very light gray, almost white */
+    --text-color-dark: #212529; /* Near black, for readability */
+    --text-color-light: #f8f9fa; /* Off-white, for light backgrounds */
+    --background-gradient: linear-gradient(
+        135deg,
+        #e0c3fc,
+        #8ec5fc
+    ); /* A softer, more modern gradient */
+    --box-shadow-color: rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
+    --border-radius: 15px; /* Slightly more rounded corners */
+    --transition-speed: 0.2s; /* A bit faster transition */
+    --font-family: 'Nunito', sans-serif; /* A modern, readable font */
+}
+
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Playwrite DE Grund", cursive;
-    font-optical-sizing: auto;
-    font-style: normal;
 }
 
-.container {
+body {
+    font-family: var(--font-family);
+    background: var(--background-gradient);
+    min-height: 100vh;
+    color: var(--text-color-dark);
+    line-height: 1.7; /* Improved line height for readability */
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased; /* Better font rendering for webkit browsers */
+    -moz-osx-font-smoothing: grayscale; /* Better font rendering for Firefox */
+}
+
+/* Modern App Layout */
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background var(--transition-speed) ease;
+}
+
+/* Modern Header */
+.header {
+    background: rgba(255, 255, 255, 0.9); /* Slightly less opaque */
+    backdrop-filter: blur(
+        15px
+    ); /* Increased blur for a glass effect */
+    padding: 3rem 2rem; /* Increased padding */
+    text-align: center;
+    box-shadow: 0 6px 30px var(--box-shadow-color); /* More pronounced shadow */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5); /* Slightly stronger border */
+}
+
+.title {
+    font-size: 4rem; /* Larger title */
+    color: var(--primary-color);
+    margin-bottom: 1rem; /* Increased margin */
+    letter-spacing: -1.5px; /* Slightly tighter letter spacing */
+    transition: color var(--transition-speed) ease;
+    font-weight: 700; /* Bold font weight */
+}
+
+.subtitle {
+    font-size: 1.5rem; /* Larger subtitle */
+    color: var(--secondary-color); /* Use secondary color */
+    opacity: 0.95; /* Slightly less transparent */
+    font-weight: 600; /* Semi-bold font weight */
+}
+
+/* Modern Navigation */
+.nav {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(15px);
+    padding: 1.5rem; /* Increased padding */
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem; /* Increased gap */
+    flex-wrap: wrap;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4); /* Slightly stronger border */
+}
+
+.nav-button {
+    padding: 1rem 2rem; /* Increased padding */
+    border: none;
+    background-color: var(--primary-color); /* Use primary color */
+    color: var(--text-color-light); /* Light text color */
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: transform var(--transition-speed) ease,
+        box-shadow var(--transition-speed) ease;
+    font-weight: 600; /* Semi-bold font weight */
+    font-size: 1.1rem; /* Slightly larger font size */
+    box-shadow: 0 5px 15px rgba(111, 66, 193, 0.3); /* Adjusted shadow color */
+}
+
+.nav-button:hover {
+    transform: translateY(-5px); /* Increased lift effect */
+    box-shadow: 0 8px 25px rgba(111, 66, 193, 0.4); /* Adjusted shadow color */
+}
+
+.nav-button.active {
+    background-color: var(--secondary-color); /* Use secondary color */
+    color: var(--text-color-light);
+    box-shadow: 0 6px 20px rgba(73, 80, 87, 0.5); /* Adjusted shadow color */
+}
+
+/* Modern Main Content */
+.main {
+    flex: 1;
+    padding: 3rem; /* Increased padding */
+    max-width: 1200px;
+    margin: 0 auto; /* Center the content */
+}
+
+.demo-description {
+    font-size: 1.2rem; /* Slightly larger font size */
+    color: #495057; /* Use secondary color */
+    margin-bottom: 2.5rem; /* Increased margin */
+    line-height: 1.8; /* Improved line height */
+}
+
+/* Demo Container */
+.demo-container {
+    margin-bottom: 2.5rem; /* Increased margin */
+}
+
+.demo-container h3 {
+    font-size: 1.5rem; /* Larger font size */
+    color: var(--primary-color); /* Use primary color */
+    margin-bottom: 1.2rem; /* Increased margin */
+    border-bottom: 3px solid var(--primary-color); /* Use primary color */
+    padding-bottom: 0.75rem; /* Increased padding */
+    display: inline-block;
+    font-weight: 600; /* Semi-bold font weight */
+}
+
+.demo-preview {
+    background: #fff; /* White background */
+    border: 2px solid var(--accent-color); /* Use accent color */
+    border-radius: 20px; /* More rounded corners */
+    padding: 2.5rem; /* Increased padding */
+    margin-bottom: 1.5rem; /* Increased margin */
+    box-shadow: 0 4px 15px var(--box-shadow-color); /* Add a subtle shadow */
+}
+
+.demo-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem; /* Increased gap */
+    align-items: center;
+}
+
+/* Buttons */
+.demo-button {
+    padding: 1rem 2rem; /* Increased padding */
+    background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        #764ba2
+    ); /* Use primary color */
+    color: white;
+    border: none;
+    border-radius: 30px; /* More rounded corners */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600; /* Semi-bold font weight */
+    font-size: 1.1rem; /* Slightly larger font size */
+    margin: 0.5rem;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3); /* Adjusted shadow color */
+}
+
+.demo-button:hover {
+    transform: translateY(-3px); /* Increased lift effect */
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); /* Adjusted shadow color */
+}
+
+.demo-button.secondary {
+    background: linear-gradient(135deg, #6c757d, #495057);
+}
+
+.demo-button.small {
+    padding: 0.6rem 1.2rem; /* Adjusted padding */
+    font-size: 0.9rem; /* Slightly smaller font size */
+}
+
+.button-group {
+    display: flex;
+    gap: 1.2rem; /* Increased gap */
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Form Styles */
+.demo-input {
+    padding: 1rem 1.2rem; /* Increased padding */
+    border: 2px solid var(--accent-color); /* Use accent color */
+    border-radius: 12px; /* More rounded corners */
+    font-size: 1.1rem; /* Slightly larger font size */
+    width: 100%;
+    max-width: 350px; /* Increased max width */
+    margin: 0.6rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Added box-shadow transition */
+}
+
+.demo-input:focus {
+    outline: none;
+    border-color: var(--primary-color); /* Use primary color */
+    box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15); /* Adjusted shadow color */
+}
+
+.form-demo {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-    text-align: center;
-}
-.heading {
-    font-size: 2rem;
-    color: #333;
-}
-.button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 20px;
+    gap: 1.2rem; /* Increased gap */
+    margin-bottom: 2rem; /* Increased margin */
 }
 
+.form-preview {
+    background: #f8f9fa;
+    border-radius: 12px; /* More rounded corners */
+    padding: 1.2rem; /* Increased padding */
+    border-left: 5px solid var(--primary-color); /* Use primary color */
+}
+
+.form-preview p {
+    margin: 0.3rem 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem; /* Slightly smaller font size */
+}
+
+/* Todo List */
+.todo-input {
+    display: flex;
+    gap: 1.2rem; /* Increased gap */
+    margin-bottom: 2rem; /* Increased margin */
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.todo-list {
+    list-style: none;
+    max-width: 450px; /* Increased max width */
+    margin: 0 auto;
+}
+
+.todo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem; /* Increased padding */
+    margin: 0.6rem 0;
+    background: white;
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1); /* Adjusted shadow */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Added box-shadow transition */
+}
+
+.todo-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Adjusted shadow */
+}
+
+.todo-item span {
+    flex: 1;
+    margin-right: 1.2rem; /* Increased margin */
+}
+
+/* Cards */
+.demo-card {
+    background: white;
+    border-radius: 20px; /* More rounded corners */
+    padding: 2rem; /* Increased padding */
+    margin: 1.2rem; /* Increased margin */
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1); /* Adjusted shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Added box-shadow transition */
+    max-width: 350px; /* Increased max width */
+}
+
+.demo-card:hover {
+    transform: translateY(-8px); /* Increased lift effect */
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15); /* Adjusted shadow */
+}
+
+.card-title {
+    color: var(--primary-color); /* Use primary color */
+    margin-bottom: 1.2rem; /* Increased margin */
+    font-size: 1.5rem; /* Larger font size */
+    font-weight: 600; /* Semi-bold font weight */
+}
+
+.card-content {
+    color: #495057; /* Use secondary color */
+    line-height: 1.6;
+}
+
+/* Footer */
+.footer {
+    background: rgba(255, 255, 255, 0.95); /* Slightly less opaque */
+    backdrop-filter: blur(12px);
+    padding: 2.5rem; /* Increased padding */
+    text-align: center;
+    color: #495057; /* Use secondary color */
+    margin-top: auto;
+}
+
+.footer p {
+    margin: 0.3rem 0;
+}
+
+/* Animations */
 @keyframes tilt {
     0% {
         transform: rotate(-5deg);
@@ -40,4 +328,85 @@
     100% {
         transform: rotate(-5deg);
     }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .title {
+        font-size: 2.5rem; /* Adjusted font size */
+    }
+
+    .main {
+        padding: 1.5rem; /* Adjusted padding */
+    }
+
+    .demo-section {
+        padding: 2rem; /* Adjusted padding */
+    }
+
+    .nav {
+        padding: 0.8rem; /* Adjusted padding */
+    }
+
+    .nav-button {
+        padding: 0.6rem 1.2rem; /* Adjusted padding */
+        font-size: 0.9rem; /* Adjusted font size */
+    }
+
+    .todo-input {
+        flex-direction: column;
+    }
+
+    .demo-input {
+        max-width: 100%;
+    }
+
+    .demo-card {
+        margin: 0.8rem; /* Adjusted margin */
+        max-width: 100%;
+    }
+}
+
+/* Legacy button styles for compatibility */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    text-align: center;
+}
+
+.heading {
+    font-size: 2rem;
+    color: #333;
+}
+
+.button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px;
+}
+
+/* Code Block Styles */
+pre.code-block {
+    background-color: #282c34;
+    color: #abb2bf;
+    padding: 1rem;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+}
+
+code.language-typescript {
+    font-family: 'Courier New', monospace;
+    color: #abb2bf;
 }

@@ -183,11 +183,40 @@ function diffChildren(oldChildren: (VNode | string)[], newChildren: (VNode | str
     const patches: ChildPatch[] = [];
     const maxLength = Math.max(oldChildren.length, newChildren.length);
 
+    // Handle keyed elements more carefully
+    const oldKeyed = new Map<string | number, { vnode: VNode, index: number }>();
+    const newKeyed = new Map<string | number, VNode>();
+    
+    // Build maps of keyed elements
+    oldChildren.forEach((child, index) => {
+        if (typeof child !== 'string' && child.key !== undefined) {
+            oldKeyed.set(child.key, { vnode: child, index });
+        }
+    });
+    
+    newChildren.forEach((child) => {
+        if (typeof child !== 'string' && child.key !== undefined) {
+            newKeyed.set(child.key, child);
+        }
+    });
+
+    // Process each position
     for (let i = 0; i < maxLength; i++) {
         const oldChild = oldChildren[i];
         const newChild = newChildren[i];
+        
+        // If we have a new keyed element, check if it moved from elsewhere
+        if (typeof newChild !== 'string' && newChild?.key !== undefined) {
+            const oldKeyedItem = oldKeyed.get(newChild.key);
+            if (oldKeyedItem && oldKeyedItem.index !== i) {
+                // Element moved - treat as replace for simplicity
+                patches.push({ index: i, patches: [{ type: 'REPLACE', vnode: newChild }] });
+                continue;
+            }
+        }
+        
+        // Normal diffing
         const childPatches = diff(oldChild || null, newChild || null);
-
         if (childPatches.length > 0) {
             patches.push({ index: i, patches: childPatches });
         }
@@ -238,6 +267,14 @@ function patch(element: HTMLElement | Text, patches: PatchOperation[]): HTMLElem
                         const childElement = currentElement.childNodes[childPatch.index];
                         if (childElement) {
                             patch(childElement as HTMLElement | Text, childPatch.patches);
+                        } else {
+                            // Handle new children being added
+                            childPatch.patches.forEach(childChildPatch => {
+                                if (childChildPatch.type === 'CREATE' && childChildPatch.vnode) {
+                                    const newChild = createElement(childChildPatch.vnode);
+                                    currentElement.appendChild(newChild);
+                                }
+                            });
                         }
                     });
                 }
@@ -293,14 +330,12 @@ export function render(vnode: VNode, container: HTMLElement): void {
         container.appendChild(element);
         containerTrees.set(container, vnode);
     } else {
-        // Update render - diff and patch only if trees are different
-        if (!areVNodesEqual(currentVTree, vnode)) {
-            const patches = diff(currentVTree, vnode);
-            if (patches.length > 0 && container.firstChild) {
-                patch(container.firstChild as HTMLElement, patches);
-            }
-            containerTrees.set(container, vnode);
+        // Update render - always diff and patch for array changes
+        const patches = diff(currentVTree, vnode);
+        if (patches.length > 0 && container.firstChild) {
+            patch(container.firstChild as HTMLElement, patches);
         }
+        containerTrees.set(container, vnode);
     }
 }
 
