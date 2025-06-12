@@ -1,6 +1,6 @@
 # Osiris
 
-A lightweight React-like framework for building modern user interfaces with a minimal footprint.
+Reactive Vanilla Typescript UI framework for building modern user interfaces with a minimal footprint.
 
 ## Features
 
@@ -50,8 +50,8 @@ export default app;
 const Counter = () => {
   const [count, setCount] = useState(0);
   
-  return div({},
-    h1({}, `Count: ${count}`),
+  return div(
+    h1(`Count: ${count}`),
     button({
       onClick: () => setCount(count + 1)
     }, 'Increment'),
