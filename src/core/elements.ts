@@ -1,116 +1,121 @@
 // HTML element factory functions
-import { $ } from "./dom";
+import { $, VNode } from "./dom";
 import { Props } from "../types/Props";
 
 // Type representing any children that can be passed to elements
-type Child = HTMLElement | string | Props;
+type Child = VNode | string | Props;
 
 // Helper type for element creation functions
-type ElementFunction = (...children: Child[]) => HTMLElement;
+type ElementFunction<T> = (...children: (Child | Partial<T>)[]) => VNode;
 
 // Function to create element factories
-function createElementFactory(tagName: string): ElementFunction {
-    return (...children: Child[]) => {
-        // If first argument is props object (not a string or HTMLElement)
-        if (children.length > 0 && typeof children[0] !== 'string' && !(children[0] instanceof HTMLElement)) {
-            return $(tagName, children[0], ...children.slice(1));
-        } else {
-            // First argument is a child, not props
-            return $(tagName, ...children.filter(Boolean) as Child[]);
+function createElementFactory<T>(tagName: string): ElementFunction<T> {
+    return (...children: (Child | Partial<T>)[]) => {
+        // Optimized prop detection - check first arg more efficiently
+        if (children.length > 0) {
+            const first = children[0];
+            // More efficient type checking
+            if (first != null && typeof first === 'object' && 
+                !('type' in first) && !('nodeType' in first) && 
+                typeof first !== 'string') {
+                return $(tagName, first, ...children.slice(1));
+            }
         }
+        // No props, just children
+        return $(tagName, ...children);
     };
 }
 
 // Common HTML elements
-export const div = createElementFactory('div');
-export const span = createElementFactory('span');
-export const p = createElementFactory('p');
-export const h1 = createElementFactory('h1');
-export const h2 = createElementFactory('h2');
-export const h3 = createElementFactory('h3');
-export const h4 = createElementFactory('h4');
-export const h5 = createElementFactory('h5');
-export const h6 = createElementFactory('h6');
-export const a = createElementFactory('a');
-export const button = createElementFactory('button');
-export const input = createElementFactory('input');
-export const textarea = createElementFactory('textarea');
-export const select = createElementFactory('select');
-export const option = createElementFactory('option');
-export const ul = createElementFactory('ul');
-export const ol = createElementFactory('ol');
-export const li = createElementFactory('li');
-export const img = createElementFactory('img');
-export const table = createElementFactory('table');
-export const tr = createElementFactory('tr');
-export const th = createElementFactory('th');
-export const td = createElementFactory('td');
-export const form = createElementFactory('form');
-export const label = createElementFactory('label');
-export const nav = createElementFactory('nav');
-export const header = createElementFactory('header');
-export const footer = createElementFactory('footer');
-export const main = createElementFactory('main');
-export const section = createElementFactory('section');
-export const article = createElementFactory('article');
-export const aside = createElementFactory('aside');
-export const audio = createElementFactory('audio');
-export const b = createElementFactory('b');
-export const blockquote = createElementFactory('blockquote');
-export const br = createElementFactory('br');
-export const canvas = createElementFactory('canvas');
-export const code = createElementFactory('code');
-export const col = createElementFactory('col');
-export const colgroup = createElementFactory('colgroup');
-export const datalist = createElementFactory('datalist');
-export const dd = createElementFactory('dd');
-export const del = createElementFactory('del');
-export const details = createElementFactory('details');
-export const dfn = createElementFactory('dfn');
-export const dialog = createElementFactory('dialog');
-export const dl = createElementFactory('dl');
-export const dt = createElementFactory('dt');
-export const em = createElementFactory('em');
-export const embed = createElementFactory('embed');
-export const fieldset = createElementFactory('fieldset');
-export const figcaption = createElementFactory('figcaption');
-export const figure = createElementFactory('figure');
-export const hr = createElementFactory('hr');
-export const i = createElementFactory('i');
-export const iframe = createElementFactory('iframe');
-export const ins = createElementFactory('ins');
-export const kbd = createElementFactory('kbd');
-export const legend = createElementFactory('legend');
-export const map = createElementFactory('map');
-export const mark = createElementFactory('mark');
-export const meter = createElementFactory('meter');
-export const noscript = createElementFactory('noscript');
-export const object = createElementFactory('object');
-export const optgroup = createElementFactory('optgroup');
-export const output = createElementFactory('output');
-export const picture = createElementFactory('picture');
-export const pre = createElementFactory('pre');
-export const progress = createElementFactory('progress');
-export const q = createElementFactory('q');
-export const ruby = createElementFactory('ruby');
-export const s = createElementFactory('s');
-export const samp = createElementFactory('samp');
-export const script = createElementFactory('script');
-export const small = createElementFactory('small');
-export const source = createElementFactory('source');
-export const strong = createElementFactory('strong');
-export const style = createElementFactory('style');
-export const sub = createElementFactory('sub');
-export const summary = createElementFactory('summary');
-export const sup = createElementFactory('sup');
-export const svg = createElementFactory('svg');
-export const tbody = createElementFactory('tbody');
-export const template = createElementFactory('template');
-export const tfoot = createElementFactory('tfoot');
-export const thead = createElementFactory('thead');
-export const time = createElementFactory('time');
-export const track = createElementFactory('track');
-export const u = createElementFactory('u');
-export const var_ = createElementFactory('var');
-export const video = createElementFactory('video');
-export const wbr = createElementFactory('wbr');
+export const div = createElementFactory<HTMLDivElement>('div');
+export const span = createElementFactory<HTMLSpanElement>('span');
+export const p = createElementFactory<HTMLParagraphElement>('p');
+export const h1 = createElementFactory<HTMLHeadingElement>('h1');
+export const h2 = createElementFactory<HTMLHeadingElement>('h2');
+export const h3 = createElementFactory<HTMLHeadingElement>('h3');
+export const h4 = createElementFactory<HTMLHeadingElement>('h4');
+export const h5 = createElementFactory<HTMLHeadingElement>('h5');
+export const h6 = createElementFactory<HTMLHeadingElement>('h6');
+export const a = createElementFactory<HTMLAnchorElement>('a');
+export const button = createElementFactory<HTMLButtonElement>('button');
+export const input = createElementFactory<HTMLInputElement>('input');
+export const textarea = createElementFactory<HTMLTextAreaElement>('textarea');
+export const select = createElementFactory<HTMLSelectElement>('select');
+export const option = createElementFactory<HTMLOptionElement>('option');
+export const ul = createElementFactory<HTMLUListElement>('ul');
+export const ol = createElementFactory<HTMLOListElement>('ol');
+export const li = createElementFactory<HTMLLIElement>('li');
+export const img = createElementFactory<HTMLImageElement>('img');
+export const table = createElementFactory<HTMLTableElement>('table');
+export const tr = createElementFactory<HTMLTableRowElement>('tr');
+export const th = createElementFactory<HTMLTableHeaderCellElement>('th');
+export const td = createElementFactory<HTMLTableCellElement>('td');
+export const form = createElementFactory<HTMLFormElement>('form');
+export const label = createElementFactory<HTMLLabelElement>('label');
+export const nav = createElementFactory<HTMLDivElement>('nav');
+export const header = createElementFactory<HTMLHeadElement>('header');
+export const footer = createElementFactory<HTMLDivElement>('footer');
+export const main = createElementFactory<HTMLDivElement>('main');
+export const section = createElementFactory<HTMLDivElement>('section');
+export const article = createElementFactory<HTMLDivElement>('article');
+export const aside = createElementFactory<HTMLDivElement>('aside');
+export const audio = createElementFactory<HTMLAudioElement>('audio');
+export const b = createElementFactory<HTMLSpanElement>('b');
+export const blockquote = createElementFactory<HTMLQuoteElement>('blockquote');
+export const br = createElementFactory<HTMLBRElement>('br');
+export const canvas = createElementFactory<HTMLCanvasElement>('canvas');
+export const code = createElementFactory<HTMLElement>('code');
+export const col = createElementFactory<HTMLTableColElement>('col');
+export const colgroup = createElementFactory<HTMLTableColElement>('colgroup');
+export const datalist = createElementFactory<HTMLDataListElement>('datalist');
+export const dd = createElementFactory<HTMLDListElement>('dd');
+export const del = createElementFactory<HTMLModElement>('del');
+export const details = createElementFactory<HTMLDetailsElement>('details');
+export const dfn = createElementFactory<HTMLElement>('dfn');
+export const dialog = createElementFactory<HTMLDialogElement>('dialog');
+export const dl = createElementFactory<HTMLDListElement>('dl');
+export const dt = createElementFactory<HTMLElement>('dt');
+export const em = createElementFactory<HTMLElement>('em');
+export const embed = createElementFactory<HTMLEmbedElement>('embed');
+export const fieldset = createElementFactory<HTMLFieldSetElement>('fieldset');
+export const figcaption = createElementFactory<HTMLElement>('figcaption');
+export const figure = createElementFactory<HTMLElement>('figure');
+export const hr = createElementFactory<HTMLElement>('hr');
+export const i = createElementFactory<HTMLElement>('i');
+export const iframe = createElementFactory<HTMLIFrameElement>('iframe');
+export const ins = createElementFactory<HTMLElement>('ins');
+export const kbd = createElementFactory<HTMLElement>('kbd');
+export const legend = createElementFactory<HTMLElement>('legend');
+export const map = createElementFactory<HTMLElement>('map');
+export const mark = createElementFactory<HTMLElement>('mark');
+export const meter = createElementFactory<HTMLMeterElement>('meter');
+export const noscript = createElementFactory<HTMLElement>('noscript');
+export const object = createElementFactory<HTMLElement>('object');
+export const optgroup = createElementFactory<HTMLOptGroupElement>('optgroup');
+export const output = createElementFactory<HTMLElement>('output');
+export const picture = createElementFactory<HTMLElement>('picture');
+export const pre = createElementFactory<HTMLElement>('pre');
+export const progress = createElementFactory<HTMLElement>('progress');
+export const q = createElementFactory<HTMLElement>('q');
+export const ruby = createElementFactory<HTMLElement>('ruby');
+export const s = createElementFactory<HTMLElement>('s');
+export const samp = createElementFactory<HTMLElement>('samp');
+export const script = createElementFactory<HTMLElement>('script');
+export const small = createElementFactory<HTMLElement>('small');
+export const source = createElementFactory<HTMLElement>('source');
+export const strong = createElementFactory<HTMLElement>('strong');
+export const style = createElementFactory<HTMLElement>('style');
+export const sub = createElementFactory<HTMLElement>('sub');
+export const summary = createElementFactory<HTMLElement>('summary');
+export const sup = createElementFactory<HTMLElement>('sup');
+export const svg = createElementFactory<HTMLElement>('svg');
+export const tbody = createElementFactory<HTMLElement>('tbody');
+export const template = createElementFactory<HTMLElement>('template');
+export const tfoot = createElementFactory<HTMLElement>('tfoot');
+export const thead = createElementFactory<HTMLTableSectionElement>('thead');
+export const time = createElementFactory<HTMLElement>('time');
+export const track = createElementFactory<HTMLElement>('track');
+export const u = createElementFactory<HTMLElement>('u');
+export const var_ = createElementFactory<HTMLElement>('var');
+export const video = createElementFactory<HTMLElement>('video');
+export const wbr = createElementFactory<HTMLBRElement>('wbr');

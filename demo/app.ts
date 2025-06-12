@@ -7,7 +7,8 @@ const app = () => {
     return div({ class: 'container' },
         h1({ 
             class: 'heading', 
-            style: { animation: 'tilt 3s ease-in-out infinite' } 
+            style: { animation: 'tilt 3s ease-in-out infinite' },
+            id: 'osiris-title'
         }, 'Osiris'),
 
         p('A lightweight implementation of a UI framework with hooks.'),
@@ -20,5 +21,4 @@ const app = () => {
     );
 };
 
-// Export the app wrapped in renderComponent to make it reactive
 export default app;

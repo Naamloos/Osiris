@@ -5,6 +5,8 @@ type Subscriber = () => void;
 let currentEffect: Subscriber | null = null;
 const states: any[] = [];
 let stateIndex = 0;
+let isUpdating = false;
+let pendingUpdates = new Set<Subscriber>();
 
 /**
  * Initializes state management for a value.
@@ -29,9 +31,37 @@ export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
     }
     
     const setState = (newValue: T) => {
+        // Only update if value actually changed
+        if (state.value === newValue) {
+            return;
+        }
+        
         state.value = newValue;
-        // Notify all subscribers
-        state.subscribers.forEach((subscriber: Subscriber) => subscriber());
+        
+        // Batch state updates to prevent cascading re-renders
+        if (isUpdating) {
+            state.subscribers.forEach((subscriber: Subscriber) => {
+                pendingUpdates.add(subscriber);
+            });
+            return;
+        }
+        
+        isUpdating = true;
+        
+        // Use microtask to batch synchronous updates
+        Promise.resolve().then(() => {
+            const allSubscribers = new Set<Subscriber>();
+            state.subscribers.forEach((subscriber: Subscriber) => {
+                allSubscribers.add(subscriber);
+            });
+            pendingUpdates.forEach(subscriber => allSubscribers.add(subscriber));
+            
+            pendingUpdates.clear();
+            isUpdating = false;
+            
+            // Trigger all unique subscribers once
+            allSubscribers.forEach(subscriber => subscriber());
+        });
     };
     
     return [state.value, setState];
@@ -43,16 +73,15 @@ export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
  * @param deps Optional array of dependencies that the effect depends on.
  */
 export function useEffect(callback: () => void | (() => void), deps?: any[]) {
-    // Run effect after render is complete
-    setTimeout(() => {
-        // Cleanup previous effect
+    // Use requestAnimationFrame instead of setTimeout for better performance
+    requestAnimationFrame(() => {
         const cleanup = callback();
         
         // Return cleanup function
         if (cleanup && typeof cleanup === 'function') {
             // Store cleanup for next time
         }
-    }, 0);
+    });
 }
 
 export function resetState(): void {
