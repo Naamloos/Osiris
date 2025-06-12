@@ -4,7 +4,6 @@
     box-sizing: border-box;
     font-family: "Playwrite DE Grund", cursive;
     font-optical-sizing: auto;
-    font-weight: <weight>;
     font-style: normal;
 }
 
@@ -15,6 +14,7 @@
     justify-content: center;
     height: 100vh;
     background-color: #f0f0f0;
+    text-align: center;
 }
 .heading {
     font-size: 2rem;
