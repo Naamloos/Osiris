@@ -13,7 +13,7 @@ const app = () => {
     return div({ class: 'app' },
         // Header
         div({ class: 'header' },
-            h1({ class: 'title' }, '🔱 Osiris Demo'),
+            h1({ class: 'title' }, '📝 Osiris Demo'),
             p({ class: 'subtitle' }, 'A lightweight React-like UI framework with TypeScript')
         ),
 
@@ -56,7 +56,6 @@ const app = () => {
         // Footer
         div({ class: 'footer' },
             p('Built with ❤️ using Osiris Framework'),
-            p('Syntax highlighting powered by highlight.js')
         )
     );
 };
