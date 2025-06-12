@@ -23,11 +23,6 @@ jobs:
             - name: Build project
               run: npm run build
 
-            - name: Upload production-ready build files
-              uses: actions/upload-pages-artifact@v3
-              with:
-                path: ./dist
-
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
