@@ -1,10 +1,9 @@
 import { defineConfig } from 'vite';
 import * as babel from '@babel/core';
-import path from 'path';
 
 export default defineConfig({
   root: './demo', // Set the root directory to demo
-  base: '/osiris/',
+  base: '/Osiris/',
   build: {
     rollupOptions: {
       external: [],
