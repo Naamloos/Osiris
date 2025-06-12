@@ -28,17 +28,9 @@ jobs:
               with:
                 path: ./dist
 
-    deploy:
-        name: Deploy
-        needs: build
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/master'
-
-        steps:
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                # Upload entire repository
                 path: './dist'
             - name: Deploy to GitHub Pages
               id: deployment
