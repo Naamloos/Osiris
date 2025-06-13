@@ -3,8 +3,14 @@ type Subscriber = () => void;
 
 // Store for reactive state
 let currentEffect: Subscriber | null = null;
-const states: any[] = [];
-let stateIndex = 0;
+
+// Each component instance gets its own state store
+export interface StateStore {
+    states: any[];
+    stateIndex: number;
+}
+
+let currentStore: StateStore = { states: [], stateIndex: 0 };
 let isUpdating = false;
 let pendingUpdates = new Set<Subscriber>();
 
@@ -15,15 +21,15 @@ let pendingUpdates = new Set<Subscriber>();
  * The update function will trigger re-renders of components that depend on this state.
  */
 export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
-    const index = stateIndex++;
-    if (states[index] === undefined) {
-        states[index] = {
+    const index = currentStore.stateIndex++;
+    if (currentStore.states[index] === undefined) {
+        currentStore.states[index] = {
             value: initialValue,
             subscribers: new Set<Subscriber>()
         };
     }
-    
-    const state = states[index];
+
+    const state = currentStore.states[index];
     
     // Subscribe the current effect if one exists
     if (currentEffect) {
@@ -85,9 +91,17 @@ export function useEffect(callback: () => void | (() => void), deps?: any[]) {
 }
 
 export function resetState(): void {
-    stateIndex = 0;
+    currentStore.stateIndex = 0;
 }
 
 export function setCurrentEffect(effect: Subscriber | null): void {
     currentEffect = effect;
+}
+
+export function createStateStore(): StateStore {
+    return { states: [], stateIndex: 0 };
+}
+
+export function setCurrentStore(store: StateStore): void {
+    currentStore = store;
 }

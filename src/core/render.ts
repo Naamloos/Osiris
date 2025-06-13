@@ -1,12 +1,13 @@
-import { resetState, setCurrentEffect } from './state';
+import { resetState, setCurrentEffect, createStateStore, setCurrentStore, StateStore } from './state';
 import { render, VNode } from './dom';
 import { Props } from '../types/Props';
 
 // Cache for rendered components to avoid unnecessary re-renders
-const componentCache = new WeakMap<HTMLElement, { 
-    component: () => VNode, 
-    lastVNode: VNode,
-    updateFunction: () => void 
+const componentCache = new WeakMap<HTMLElement, {
+    component: () => VNode;
+    lastVNode: VNode | null;
+    updateFunction: () => void;
+    store: StateStore;
 }>();
 
 /**
@@ -18,16 +19,16 @@ const componentCache = new WeakMap<HTMLElement, {
 export function renderComponent(component: () => VNode, parent?: HTMLElement): HTMLElement {
     // Use document.body as default parent if none provided
     const container = parent || document.body;
-    
-    // Check if component is already cached
-    const cached = componentCache.get(container);
-    if (cached && cached.component === component) {
-        return container;
+
+    let cache = componentCache.get(container);
+    if (!cache || cache.component !== component) {
+        cache = { component, lastVNode: null, updateFunction: () => {}, store: createStateStore() };
+        componentCache.set(container, cache);
     }
-    
-    // Reset state index before rendering
+
+    const { store } = cache;
     resetState();
-    
+
     let isScheduled = false;
     
     const updateComponent = () => {
@@ -37,6 +38,7 @@ export function renderComponent(component: () => VNode, parent?: HTMLElement): H
         
         // Use requestAnimationFrame for smoother updates
         requestAnimationFrame(() => {
+            setCurrentStore(store);
             resetState();
             setCurrentEffect(updateComponent);
             
@@ -45,16 +47,10 @@ export function renderComponent(component: () => VNode, parent?: HTMLElement): H
                 const vnode = component();
                 
                 // Only render if the vnode actually changed
-                const cache = componentCache.get(container);
-                if (!cache || !areVNodesShallowEqual(cache.lastVNode, vnode)) {
+                const cacheEntry = componentCache.get(container)!;
+                if (!cacheEntry.lastVNode || !areVNodesShallowEqual(cacheEntry.lastVNode, vnode)) {
                     render(vnode, container);
-                    
-                    // Update cache
-                    componentCache.set(container, {
-                        component,
-                        lastVNode: vnode,
-                        updateFunction: updateComponent
-                    });
+                    cacheEntry.lastVNode = vnode;
                 }
             } catch (error) {
                 console.error('Error during component update:', error);
@@ -65,15 +61,10 @@ export function renderComponent(component: () => VNode, parent?: HTMLElement): H
         });
     };
     
+    cache.updateFunction = updateComponent;
+
     // Initial render
     updateComponent();
-    
-    // Cache the component
-    componentCache.set(container, {
-        component,
-        lastVNode: component(), // Store initial vnode
-        updateFunction: updateComponent
-    });
     
     return container;
 }
