@@ -45,13 +45,16 @@ export function renderComponent(component: () => VNode, parent?: HTMLElement): H
             try {
                 // Render virtual DOM tree
                 const vnode = component();
-                
+
                 // Only render if the vnode actually changed
                 const cacheEntry = componentCache.get(container)!;
                 if (!cacheEntry.lastVNode || !areVNodesShallowEqual(cacheEntry.lastVNode, vnode)) {
                     render(vnode, container);
                     cacheEntry.lastVNode = vnode;
                 }
+
+                // Trim unused state slots when component structure changes
+                store.states.length = store.stateIndex;
             } catch (error) {
                 console.error('Error during component update:', error);
             } finally {
