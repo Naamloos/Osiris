@@ -4,15 +4,40 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Osiris Demo App</title>
+
+        <!-- Enhanced Google Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Roboto:wght@100..400&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- Prism.js for syntax highlighting -->
+        <link
+            href="https://unpkg.com/prismjs@1.29.0/themes/prism-tomorrow.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://unpkg.com/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css"
+            rel="stylesheet"
+        />
+
+        <!-- Custom icons from unpkg -->
+        <link
+            href="https://unpkg.com/lucide@latest/dist/umd/lucide.js"
             rel="stylesheet"
         />
     </head>
     <body>
         <div id="root"></div>
+
+        <!-- Prism.js scripts -->
+        <script src="https://unpkg.com/prismjs@1.29.0/components/prism-core.min.js"></script>
+        <script src="https://unpkg.com/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+        <script src="https://unpkg.com/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+        <script src="https://unpkg.com/prismjs@1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+
         <script type="module" src="./main.ts"></script>
     </body>
 </html>
