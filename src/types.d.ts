@@ -1,7 +1,5 @@
 /**
- * Represents a Virtual Node (VNode) in a virtual DOM structure.
- * This interface defines the structure of a VNode, which includes
- * the type of element, its properties, and its children.
+ * Represents a Virtual Node (VNode) in the virtual DOM structure.
  */
 export interface VNode {
     type: string;
@@ -17,29 +15,32 @@ export type VNodeChild = VNode | string | Props;
 export type VNodeFactory<T> = (...children: (VNodeChild | Partial<T>)[]) => VNode;
 
 /**
- * Represents the properties of a node.
- * This interface allows for dynamic properties and includes optional style and class attributes.
+ * Represents the properties of a DOM element.
  */
 export interface Props {
     [key: string]: any;
     style?: Partial<CSSStyleDeclaration>;
     class?: string;
+    key?: string | number;
 }
 
-interface PatchOperation {
+/**
+ * Patch operations for virtual DOM diffing
+ */
+export interface PatchOperation {
     type: 'CREATE' | 'REMOVE' | 'REPLACE' | 'UPDATE_PROPS' | 'UPDATE_CHILDREN';
     vnode?: VNode | string | null;
     props?: PropPatchOperation[];
     children?: ChildPatchOperation[];
 }
 
-interface PropPatchOperation {
+export interface PropPatchOperation {
     type: 'SET_PROP' | 'REMOVE_PROP';
     key: string;
     value?: any;
 }
 
-interface ChildPatchOperation {
+export interface ChildPatchOperation {
     index: number;
     patches: PatchOperation[];
 }

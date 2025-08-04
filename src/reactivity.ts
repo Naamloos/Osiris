@@ -1,18 +1,23 @@
 type Subscriber = () => void;
 
+interface StateEntry {
+    value: any;
+    subscribers: Set<Subscriber>;
+    componentId: string;
+}
+
 // Store for reactive state per component
 let currentEffect: Subscriber | null = null;
 let currentComponent: string | null = null;
-export const componentStates = new Map<string, { states: any[], stateIndex: number }>();
+export const componentStates = new Map<string, { states: StateEntry[], stateIndex: number }>();
 
 // Track which components are currently updating to prevent race conditions
 const updatingComponents = new Set<string>();
 
 /**
- * Initializes state management for a value.
+ * React-like state hook for managing component state
  * @param initialValue Initial value for the state
- * @returns A tuple containing the current state value and a function to update it.
- * The update function will trigger re-renders of components that depend on this state.
+ * @returns Tuple containing current state value and setter function
  */
 export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
     if (!currentComponent) {
@@ -28,57 +33,43 @@ export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
 
     const index = componentState.stateIndex++;
 
-    // Always check if we need to reinitialize state based on the initial value type
-    // This helps detect when we're switching between different component types
+    // Initialize state if needed or type changed (component switching)
     if (componentState.states[index] === undefined ||
         (componentState.states[index] && typeof componentState.states[index].value !== typeof initialValue)) {
         componentState.states[index] = {
             value: initialValue,
             subscribers: new Set<Subscriber>(),
-            componentId: currentComponent // Track which component owns this state
+            componentId: currentComponent
         };
     }
 
     const state = componentState.states[index];
 
-    // Subscribe the current effect if one exists and it belongs to the same component
+    // Subscribe current effect if it belongs to the same component
     if (currentEffect && state.componentId === currentComponent) {
         state.subscribers.add(currentEffect);
     }
 
     const setState = (newValue: T) => {
-        // Only update if value actually changed
-        if (state.value === newValue) {
-            return;
-        }
-
-        // Prevent recursive updates from the same component
-        if (updatingComponents.has(state.componentId)) {
+        // Skip if value unchanged or component is already updating
+        if (state.value === newValue || updatingComponents.has(state.componentId)) {
             return;
         }
 
         state.value = newValue;
-
-        // Mark component as updating
         updatingComponents.add(state.componentId);
 
-        // Use requestAnimationFrame to batch updates
+        // Batch updates with requestAnimationFrame
         requestAnimationFrame(() => {
-            // Only trigger subscribers for this specific component's state
-            if (state.subscribers.size > 0) {
-                // Create a copy of subscribers to iterate over in case the set changes during iteration
-                const subscribersToCall: Subscriber[] = Array.from(state.subscribers);
+            // Trigger all subscribers for this state
+            state.subscribers.forEach(subscriber => {
+                try {
+                    subscriber();
+                } catch (error) {
+                    console.error('Error in state subscriber:', error);
+                }
+            });
 
-                subscribersToCall.forEach((subscriber) => {
-                    try {
-                        subscriber();
-                    } catch (error) {
-                        console.error('Error in state subscriber:', error);
-                    }
-                });
-            }
-
-            // Clear the updating flag
             updatingComponents.delete(state.componentId);
         });
     };
@@ -87,11 +78,11 @@ export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
 }
 
 /**
- * @param callback Function to run after render is complete.
- * This function can return a cleanup function that will be called before the next effect runs.
- * @param deps Optional array of dependencies that the effect depends on.
+ * React-like effect hook for side effects
+ * @param callback Function to run after render, can return cleanup function
+ * @param deps Optional dependency array (currently unused but follows React API)
  */
-export function useEffect(callback: () => void | (() => void), deps?: any[]) {
+export function useEffect(callback: () => void | (() => void), deps?: any[]): void {
     if (!currentComponent) {
         console.warn('useEffect called outside of component render function');
         return;
@@ -99,15 +90,13 @@ export function useEffect(callback: () => void | (() => void), deps?: any[]) {
 
     const componentId = currentComponent;
 
-    // Use requestAnimationFrame instead of setTimeout for better performance
+    // Schedule effect to run after render
     requestAnimationFrame(() => {
-        // Only run effect if we're still in the same component context
         try {
             const cleanup = callback();
-
-            // Store cleanup function for the component
+            // TODO: Implement proper cleanup tracking per component
             if (cleanup && typeof cleanup === 'function') {
-                // TODO: Implement cleanup tracking per component
+                // Store cleanup function for future implementation
             }
         } catch (error) {
             console.error(`Error in useEffect for component ${componentId}:`, error);
@@ -115,8 +104,10 @@ export function useEffect(callback: () => void | (() => void), deps?: any[]) {
     });
 }
 
+/**
+ * Reset state index for component (called before each render)
+ */
 export function resetState(componentId?: string): void {
-    // Reset state index for the specified component or the current component if none is provided
     const targetComponent = componentId || currentComponent;
     if (targetComponent) {
         const componentState = componentStates.get(targetComponent);
@@ -126,56 +117,57 @@ export function resetState(componentId?: string): void {
     }
 }
 
+/**
+ * Clean up all state for a component
+ */
 export function cleanupState(componentId: string): void {
-    // Remove all state for the specified component
-    if (componentStates.has(componentId)) {
-        componentStates.delete(componentId);
-    }
+    componentStates.delete(componentId);
 }
 
+/**
+ * Set the current effect subscriber (for state subscription)
+ */
 export function setCurrentEffect(effect: Subscriber | null): void {
     currentEffect = effect;
 }
 
+/**
+ * Set the current component context
+ */
 export function setCurrentComponent(instanceId: string | null): void {
     currentComponent = instanceId;
 }
 
+/**
+ * Update component ID when component instance changes
+ */
 export function updateComponentId(oldInstanceId: string, newInstanceId: string): void {
-    if (componentStates.has(oldInstanceId)) {
-        const state = componentStates.get(oldInstanceId);
-        if (state) {
-            // Update the component ID in all state entries
-            state.states.forEach(stateEntry => {
-                if (stateEntry && stateEntry.componentId === oldInstanceId) {
-                    stateEntry.componentId = newInstanceId;
-                }
-            });
+    const state = componentStates.get(oldInstanceId);
+    if (state) {
+        // Update component ID in all state entries
+        state.states.forEach(stateEntry => {
+            if (stateEntry?.componentId === oldInstanceId) {
+                stateEntry.componentId = newInstanceId;
+            }
+        });
 
-            componentStates.set(newInstanceId, state);
-            componentStates.delete(oldInstanceId);
-        }
+        componentStates.set(newInstanceId, state);
+        componentStates.delete(oldInstanceId);
     }
 }
 
 /**
- * Clean up state and subscribers for a component when it's unmounted
+ * Complete cleanup of component state and subscribers
  */
 export function cleanupComponent(instanceId: string): void {
-    if (componentStates.has(instanceId)) {
-        const componentState = componentStates.get(instanceId);
-        if (componentState) {
-            // Clear all subscribers for this component's states
-            componentState.states.forEach(state => {
-                if (state && state.subscribers) {
-                    state.subscribers.clear();
-                }
-            });
-        }
-
+    const componentState = componentStates.get(instanceId);
+    if (componentState) {
+        // Clear all subscribers
+        componentState.states.forEach(state => {
+            state?.subscribers?.clear();
+        });
         componentStates.delete(instanceId);
     }
 
-    // Remove from updating components if present
     updatingComponents.delete(instanceId);
 }
