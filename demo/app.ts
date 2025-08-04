@@ -36,7 +36,10 @@ const app = () => {
                 // Live demo
                 div({ class: 'demo-container' },
                     h3('Live Demo:'),
-                    div({ class: 'demo-preview' },
+                    div({
+                        class: 'demo-preview',
+                        key: activeDemo // Force re-creation when demo changes
+                    },
                         demos[activeDemo as keyof typeof demos].component()
                     )
                 ),
