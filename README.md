@@ -20,7 +20,7 @@ npm run dev
 ```
 
 ```typescript
-import { renderComponent, useState, div, h1, button } from 'osiris';
+import { bootstrapOsiris, useState, div, h1, button } from 'osiris';
 
 const App = () => {
   const [count, setCount] = useState(0);
@@ -33,7 +33,7 @@ const App = () => {
   );
 };
 
-renderComponent(App, document.getElementById('app'));
+bootstrapOsiris(App, document.getElementById('app'));
 ```
 
 ## Core API
@@ -55,7 +55,7 @@ useEffect(() => {
 
 ```typescript
 // renderComponent - mount a component to the DOM
-renderComponent(ComponentFunction, containerElement);
+bootstrapOsiris(ComponentFunction, containerElement);
 
 // $ - create virtual DOM nodes (rarely used directly)
 const vnode = $('div', { class: 'container' }, 'content');
@@ -265,20 +265,6 @@ npm run dev     # Development server
 npm run build   # Production build
 npm run test    # Run tests
 npm run preview # Preview build
-```
-
-### Project Structure
-```
-src/
-├── index.ts           # Main exports
-├── core/
-│   ├── dom.ts         # Virtual DOM & diffing
-│   ├── elements.ts    # HTML element factories
-│   ├── render.ts      # Component rendering
-│   ├── state.ts       # State management
-│   └── styles.ts      # Style utilities
-└── types/
-    └── Props.d.ts     # TypeScript definitions
 ```
 
 ## Browser Support
